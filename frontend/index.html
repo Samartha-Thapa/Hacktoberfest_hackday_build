@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A calm, friendly way to understand your email.">
+    <title>Talkie Mail</title>
+    <link rel="stylesheet" href="/static/styles.css?v=12">
+  </head>
+  <body data-connection-state="disconnected" class="onboarding-active">
+    <div class="app-shell">
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="Talkie Mail home">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>Talkie Mail</span>
+        </a>
+        <div class="connection-status" aria-label="Account status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span data-connection-label>Not connected</span>
+        </div>
+      </header>
+
+      <div class="app-layout">
+        <nav class="sidebar" aria-label="Main navigation">
+          <a class="nav-link nav-link--active" href="#inbox" data-inbox-link>
+            <span aria-hidden="true">▤</span>
+            Inbox
+          </a>
+          <a class="nav-link" href="#settings" data-settings-link>
+            <span aria-hidden="true">⚙</span>
+            Settings
+          </a>
+        </nav>
+
+        <main class="main-content">
+          <section class="onboarding" data-onboarding aria-labelledby="onboarding-title">
+            <div class="onboarding-scene onboarding-scene--welcome" data-onboarding-scene="welcome">
+              <div class="onboarding-copy">
+                <p class="eyebrow">A calmer inbox starts here</p>
+                <p class="onboarding-note" data-onboarding-note role="status" hidden></p>
+                <div class="onboarding-actions">
+                  <button class="button button--primary" type="button" data-onboarding-primary>
+                    Continue
+                  </button>
+                  <button class="button button--quiet" type="button" data-onboarding-secondary>
+                    Skip intro
+                  </button>
+                </div>
+              </div>
+              <div class="buddy-stage">
+                <div class="buddy-speech-bubble" aria-live="polite">
+                  <h1 id="onboarding-title" data-onboarding-title
+                    data-typing-text="Hey, I'm Buddy. Let's make your inbox feel a little calmer.">
+                    Hey, I'm Buddy. Let's make your inbox feel a little calmer.
+                  </h1>
+                  <p data-onboarding-copy>
+                    I’ll help you take things one message at a time and get things set up together.
+                  </p>
+                </div>
+                <div class="buddy-portrait" data-buddy-portrait>
+                  <svg class="buddy-art" data-buddy-face viewBox="0 0 441 478"
+                    role="img" aria-labelledby="onboarding-buddy-title onboarding-buddy-description">
+                    <title id="onboarding-buddy-title">Buddy</title>
+                    <desc id="onboarding-buddy-description">A friendly coral character with warm eyes, rosy cheeks, and a smile.</desc>
+                    <path class="buddy-art__tuft" fill="#ff5a50" d="M292 96c-7-34 1-64 24-78 19-12 42-4 48 18 8 28-11 56-44 78z"/>
+                    <path class="buddy-art__tuft" fill="#ff5a50" d="M327 104c13-37 36-62 62-61 22 1 34 20 25 40-12 27-43 42-78 42z"/>
+                    <path fill="#ff5a50" d="M44 246C44 137 124 52 230 52c107 0 187 82 187 191 0 109-80 182-187 182C124 425 44 355 44 246z"/>
+                    <g class="buddy-art__neutral-eyes">
+                      <ellipse cx="178" cy="222" rx="24" ry="31" fill="#1f2420"/>
+                      <ellipse cx="270" cy="222" rx="24" ry="31" fill="#1f2420"/>
+                    </g>
+                    <g class="buddy-art__happy-eyes" aria-hidden="true">
+                      <ellipse cx="178" cy="222" rx="25" ry="32" fill="#1f2420"/>
+                      <ellipse cx="270" cy="222" rx="25" ry="32" fill="#1f2420"/>
+                    </g>
+                    <ellipse class="buddy-art__eye-glint" cx="170" cy="211" rx="6" ry="8" fill="#fff"/>
+                    <ellipse class="buddy-art__eye-glint" cx="262" cy="211" rx="6" ry="8" fill="#fff"/>
+                    <ellipse class="buddy-art__blush" cx="116" cy="282" rx="32" ry="14" fill="#ff9b91"/>
+                    <ellipse class="buddy-art__blush" cx="332" cy="282" rx="32" ry="14" fill="#ff9b91"/>
+                    <path class="buddy-art__mouth" d="M135 292 C180 306 270 306 315 292" fill="none"
+                      stroke="#1f2420" stroke-linecap="round" stroke-width="12"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="onboarding-scene onboarding-scene--setup" data-onboarding-scene="connection" hidden>
+              <div class="onboarding-copy">
+                <h1>Let's bring your inbox here.</h1>
+                <p data-onboarding-copy>
+                  Connect your Gmail account so Buddy can help you understand your messages more easily.
+                </p>
+                <p class="onboarding-permission">
+                  Talkie Mail requests <strong>read-only Gmail access</strong>. It cannot send, edit, or delete your messages.
+                </p>
+                <p class="onboarding-note" data-setup-note role="status" hidden></p>
+                <div class="onboarding-actions">
+                  <button class="button button--primary" type="button" data-setup-primary>
+                    Connect Gmail
+                  </button>
+                  <button class="button button--quiet" type="button" data-setup-secondary>
+                    Back to welcome
+                  </button>
+                </div>
+              </div>
+              <div class="buddy-stage buddy-stage--supporting">
+                <div class="buddy-portrait">
+                  <img src="/static/assets/buddy/buddy.svg" alt="Buddy is ready to help"
+                    data-buddy-image>
+                </div>
+              </div>
+            </div>
+
+            <div class="onboarding-scene onboarding-scene--celebration" data-onboarding-scene="celebration"
+              hidden aria-live="polite">
+              <div class="celebration-content">
+                <div class="buddy-portrait buddy-portrait--celebration">
+                  <svg class="buddy-art is-happy" data-buddy-celebration viewBox="0 0 441 478"
+                    role="img" aria-label="Buddy is happy that Gmail connected">
+                    <path fill="#ff5a50" d="M292 96c-7-34 1-64 24-78 19-12 42-4 48 18 8 28-11 56-44 78z"/>
+                    <path fill="#ff5a50" d="M327 104c13-37 36-62 62-61 22 1 34 20 25 40-12 27-43 42-78 42z"/>
+                    <path fill="#ff5a50" d="M44 246C44 137 124 52 230 52c107 0 187 82 187 191 0 109-80 182-187 182C124 425 44 355 44 246z"/>
+                    <ellipse cx="178" cy="222" rx="25" ry="32" fill="#1f2420"/>
+                    <ellipse cx="270" cy="222" rx="25" ry="32" fill="#1f2420"/>
+                    <ellipse cx="170" cy="211" rx="7" ry="9" fill="#fff"/>
+                    <ellipse cx="262" cy="211" rx="7" ry="9" fill="#fff"/>
+                    <ellipse cx="116" cy="282" rx="32" ry="14" fill="#ff9b91" opacity=".95"/>
+                    <ellipse cx="332" cy="282" rx="32" ry="14" fill="#ff9b91" opacity=".95"/>
+                    <path class="buddy-art__mouth" d="M135 292 C180 306 270 306 315 292" fill="none"
+                      stroke="#1f2420" stroke-linecap="round" stroke-width="12"/>
+                  </svg>
+                </div>
+                <h1>Yay!! Gmail connected!</h1>
+              </div>
+            </div>
+
+          </section>
+
+          <section class="dashboard" data-dashboard hidden aria-labelledby="dashboard-title">
+            <div class="page-heading" data-tour-welcome>
+              <div>
+                <p class="eyebrow">Your inbox</p>
+                <h1 id="dashboard-title">A quieter way to email</h1>
+              </div>
+              <span class="environment-label">Preview</span>
+            </div>
+
+            <section class="workspace" data-tour-workspace aria-labelledby="inbox-heading">
+              <div class="inbox-column">
+                <div class="section-heading">
+                  <div>
+                    <h2 id="inbox-heading">Inbox</h2>
+                    <p class="muted">Your messages will appear here after connecting an account.</p>
+                  </div>
+                  <div class="inbox-heading__actions">
+                    <span class="message-count" data-message-count>0 messages</span>
+                    <button class="button button--secondary button--small" type="button"
+                      data-refresh-inbox hidden>Refresh</button>
+                  </div>
+                </div>
+
+                <div class="state-panel state-panel--disconnected" data-state="disconnected">
+                  <div class="state-icon" aria-hidden="true">✦</div>
+                  <h3>Your inbox is ready when you are</h3>
+                  <p>
+                    Connect an email account to see your real messages here. Talkie Mail will
+                    never show sample emails as if they were yours.
+                  </p>
+                  <button class="button button--primary" type="button" data-reopen-connection>
+                    Connect Gmail
+                  </button>
+                  <p class="state-note" data-connection-state-note role="status">
+                    Account connection is not available in this preview.
+                  </p>
+                </div>
+                <div class="state-panel state-panel--loading" data-state="loading" hidden
+                  aria-live="polite" aria-busy="true">
+                  <div class="loading-indicator" aria-hidden="true"></div>
+                  <p>Checking your inbox…</p>
+                </div>
+                <div class="state-panel" data-state="empty" hidden>
+                  <div class="state-icon" aria-hidden="true">○</div>
+                  <h3>Your inbox is clear</h3>
+                  <p>There are no messages in this view right now.</p>
+                </div>
+                <div class="state-panel state-panel--error" data-state="error" hidden
+                  aria-live="assertive">
+                  <div class="state-icon" aria-hidden="true">!</div>
+                  <h3>We couldn't load your inbox</h3>
+                  <p>Please try again. If the problem continues, check your account connection.</p>
+                  <button class="button button--secondary" type="button" data-action="retry">
+                    Try again
+                  </button>
+                </div>
+                <div class="message-list" data-message-list hidden aria-live="polite"></div>
+              </div>
+
+              <aside class="detail-panel" aria-labelledby="detail-heading">
+                <div class="detail-panel__heading">
+                  <p class="eyebrow">Message detail</p>
+                  <h2 id="detail-heading" data-detail-subject>Choose a message</h2>
+                </div>
+                <div class="detail-placeholder" data-detail-state="empty">
+                  <div class="detail-placeholder__icon" aria-hidden="true">↗</div>
+                  <p>Select an email from your inbox to read it here.</p>
+                  <span class="muted">Choose an Inbox message to view its plain-text content.</span>
+                </div>
+                <div class="detail-placeholder" data-detail-state="loading" hidden
+                  aria-live="polite" aria-busy="true">
+                  <div class="loading-indicator" aria-hidden="true"></div>
+                  <p>Loading message…</p>
+                </div>
+                <div class="detail-placeholder detail-placeholder--error" data-detail-state="error" hidden
+                  aria-live="assertive">
+                  <div class="detail-placeholder__icon" aria-hidden="true">!</div>
+                  <p>We couldn't load that message.</p>
+                  <span class="muted">Try selecting it again or refresh your inbox.</span>
+                </div>
+                <article class="message-detail" data-detail-state="message" hidden>
+                  <dl class="message-detail__metadata">
+                    <div><dt>From</dt><dd data-detail-from></dd></div>
+                    <div><dt>Date</dt><dd data-detail-date></dd></div>
+                  </dl>
+                  <section class="summary-invitation" data-summary-invitation
+                    aria-labelledby="summary-invitation-heading">
+                    <div class="summary-environment" data-summary-environment aria-hidden="true">
+                      <span class="summary-environment__haze"></span>
+                      <span class="summary-environment__hill summary-environment__hill--far"></span>
+                      <span class="summary-environment__hill summary-environment__hill--near"></span>
+                      <span class="summary-environment__leaf summary-environment__leaf--one"></span>
+                      <span class="summary-environment__leaf summary-environment__leaf--two"></span>
+                    </div>
+                    <div class="summary-invitation__glow" aria-hidden="true"></div>
+                    <img class="summary-invitation__buddy"
+                      src="/static/assets/buddy/buddy.svg"
+                      alt="Buddy is ready to help with this email">
+                    <span class="summary-music-note" data-summary-music-note aria-hidden="true">♪</span>
+                    <div class="summary-invitation__copy">
+                      <h3 id="summary-invitation-heading">A lot to read?</h3>
+                      <p data-summary-status role="status">
+                        I can help you catch up.
+                      </p>
+                      <button class="button button--primary button--small"
+                        type="button" data-summarize-email disabled>
+                        Summarize this email
+                      </button>
+                      <p class="summary-invitation__note" data-summary-note>
+                        Summarization will be available when the local model is connected.
+                      </p>
+                    </div>
+                  </section>
+                  <section class="message-summary" data-message-summary hidden
+                    aria-labelledby="message-summary-heading">
+                    <p class="eyebrow">Buddy's summary</p>
+                    <h3 id="message-summary-heading">The gist</h3>
+                    <p data-summary-gist></p>
+                    <h4>Key points</h4>
+                    <ul data-summary-points></ul>
+                    <h4>Needs your attention</h4>
+                    <p data-summary-actions></p>
+                  </section>
+                  <div class="message-detail__body" data-detail-body></div>
+                </article>
+              </aside>
+            </section>
+          </section>
+        </main>
+      </div>
+    </div>
+    <div class="tour-backdrop" data-tour-backdrop hidden></div>
+    <div class="tour-spotlight" data-tour-spotlight hidden aria-hidden="true"></div>
+    <section class="tour-dialog" data-tour-dialog role="dialog" aria-modal="true"
+      aria-labelledby="tour-title" aria-describedby="tour-copy" hidden>
+      <div class="tour-dialog__content">
+        <p class="tour-dialog__step" data-tour-step></p>
+        <h2 id="tour-title" data-tour-title></h2>
+        <p id="tour-copy" data-tour-copy></p>
+        <div class="tour-dialog__footer">
+          <button class="tour-button tour-button--quiet" type="button" data-tour-skip>Skip walkthrough</button>
+          <div class="tour-dialog__actions">
+            <button class="tour-button tour-button--secondary" type="button" data-tour-back>Back</button>
+            <button class="tour-button tour-button--primary" type="button" data-tour-next>Next</button>
+          </div>
+        </div>
+      </div>
+      <img class="tour-dialog__buddy" src="/static/assets/buddy/buddy.svg" alt="" aria-hidden="true">
+    </section>
+    <script src="/static/app.js?v=17" defer></script>
+  </body>
+</html>

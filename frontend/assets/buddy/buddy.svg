@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 441 478" role="img" aria-labelledby="buddy-title buddy-description">
+  <title id="buddy-title">Buddy</title>
+  <desc id="buddy-description">A friendly coral character with warm eyes, rosy cheeks, a smile, and two leaf-like tufts.</desc>
+  <style>
+    .buddy-eye {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: buddy-blink 5.5s ease-in-out 0s infinite;
+    }
+
+    @keyframes buddy-blink {
+      0%, 82%, 88%, 100% { transform: scaleY(1); }
+      84%, 86% { transform: scaleY(0.08); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .buddy-eye { animation: none; }
+    }
+  </style>
+  <g id="buddy-character">
+    <path id="buddy-left-tuft" fill="#ff5a50" d="M292 96c-7-34 1-64 24-78 19-12 42-4 48 18 8 28-11 56-44 78z"/>
+    <path id="buddy-right-tuft" fill="#ff5a50" d="M327 104c13-37 36-62 62-61 22 1 34 20 25 40-12 27-43 42-78 42z"/>
+    <path id="buddy-body" fill="#ff5a50" d="M44 246C44 137 124 52 230 52c107 0 187 82 187 191 0 109-80 182-187 182C124 425 44 355 44 246z"/>
+    <g id="buddy-left-eye" class="buddy-eye">
+      <ellipse cx="178" cy="222" rx="24" ry="31" fill="#1f2420"/>
+      <ellipse id="buddy-left-eye-warmth" cx="170" cy="211" rx="6" ry="8" fill="#fff"/>
+    </g>
+    <g id="buddy-right-eye" class="buddy-eye">
+      <ellipse cx="270" cy="222" rx="24" ry="31" fill="#1f2420"/>
+      <ellipse id="buddy-right-eye-warmth" cx="262" cy="211" rx="6" ry="8" fill="#fff"/>
+    </g>
+    <ellipse id="buddy-left-blush" cx="116" cy="282" rx="32" ry="14" fill="#ff9b91" opacity=".7"/>
+    <ellipse id="buddy-right-blush" cx="332" cy="282" rx="32" ry="14" fill="#ff9b91" opacity=".7"/>
+    <path id="buddy-smile"
+      d="M135 292 C180 306 270 306 315 292"
+      fill="none"
+      stroke="#1f2420"
+      stroke-linecap="round"
+      stroke-width="12"/>
+  </g>
+</svg>
