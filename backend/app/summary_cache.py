@@ -89,7 +89,7 @@ class SummaryCache:
         if validated is None:
             return
         try:
-            self._client.setex(key, self._ttl, json.dumps(validated, ensure_ascii=False))
+            self._client.set(key,json.dumps(validated, ensure_ascii=False),ex=self._ttl,)
         except Exception as error:
             logger.warning(
                 "Summary cache operation failed: operation=set exception_type=%s",
