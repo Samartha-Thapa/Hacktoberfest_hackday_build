@@ -31,6 +31,7 @@ from .summarizer import (
     SummarizationUnavailable,
     summarize_email,
 )
+from .summary_cache import SummaryCache
 
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 ASSETS_DIR = Path(__file__).resolve().parents[2] / "assets"
@@ -144,7 +145,14 @@ def gmail_message_summary(message_id: str, request: Request):
     started_at = time.monotonic()
     try:
         message = retrieve_inbox_message(credentials, message_id=message_id)
-        summary = summarize_email(str(message.get("body") or ""), get_settings())
+        settings = get_settings()
+        body = str(message.get("body") or "")
+        cache = SummaryCache(settings)
+        cache_key = cache.key(session_id, message_id, body, settings)
+        summary = cache.get(cache_key)
+        if summary is None:
+            summary = summarize_email(body, settings)
+            cache.set(cache_key, summary)
         return {"message_id": message_id, **summary}
     except GmailMessageNotFound as error:
         raise HTTPException(status_code=404, detail=str(error)) from error

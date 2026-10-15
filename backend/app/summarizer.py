@@ -62,6 +62,30 @@ MARKDOWN_JSON_FENCE = re.compile(
 logger = logging.getLogger(__name__)
 
 
+def validate_summary_result(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, dict):
+        return None
+    gist = value.get("gist")
+    key_points = value.get("key_points")
+    action_items = value.get("action_items")
+    if (
+        not isinstance(gist, str)
+        or not gist.strip()
+        or not isinstance(key_points, list)
+        or len(key_points) > 3
+        or not all(isinstance(item, str) and item.strip() for item in key_points)
+        or not isinstance(action_items, list)
+        or len(action_items) > 3
+        or not all(isinstance(item, str) and item.strip() for item in action_items)
+    ):
+        return None
+    return {
+        "gist": gist.strip(),
+        "key_points": [item.strip() for item in key_points],
+        "action_items": [item.strip() for item in action_items],
+    }
+
+
 def _parse_model_json(content: str) -> Any:
     content = content.strip()
     fenced = MARKDOWN_JSON_FENCE.match(content)
@@ -232,19 +256,8 @@ def _request_summary(
             content_type=content_type,
         )
 
-    gist = result.get("gist")
-    key_points = result.get("key_points")
-    action_items = result.get("action_items")
-    if (
-        not isinstance(gist, str)
-        or not gist.strip()
-        or not isinstance(key_points, list)
-        or len(key_points) > 3
-        or not all(isinstance(item, str) and item.strip() for item in key_points)
-        or not isinstance(action_items, list)
-        or len(action_items) > 3
-        or not all(isinstance(item, str) and item.strip() for item in action_items)
-    ):
+    validated = validate_summary_result(result)
+    if validated is None:
         raise SummarizationUnavailable(
             "The local summarizer returned incomplete results.",
             status_code=response.status_code,
@@ -255,11 +268,7 @@ def _request_summary(
             generated_content_length=generated_content_length,
             content_type=content_type,
         )
-    return {
-        "gist": gist.strip(),
-        "key_points": [item.strip() for item in key_points],
-        "action_items": [item.strip() for item in action_items],
-    }, finish_reason
+    return validated, finish_reason
 
 
 def summarize_email(body: str, settings: Settings) -> dict[str, Any]:

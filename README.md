@@ -28,6 +28,8 @@ Verified in the current code:
 - Validation of the summary schema: `gist`, `key_points`, and `action_items`.
 - A bounded retry for incomplete model JSON; malformed output is reported as a
   failure rather than fabricated into a summary.
+- Optional Redis-backed caching of validated summaries, with a configurable
+  TTL and graceful fallback to llama.cpp when Redis is unavailable.
 - Buddy onboarding, confirmed-connection celebration, existing inbox dashboard,
   email selection, summary loading state, retry state, and a three-step
   dashboard walkthrough.
@@ -273,9 +275,40 @@ contains safe placeholders:
 | `LLAMA_CPP_TIMEOUT` | No | Bounded local inference timeout in seconds; default 60. |
 | `LLAMA_CPP_CONTEXT_SIZE` | No | Model context size used for prompt budgeting; default 2048. |
 | `LLAMA_CPP_MAX_TOKENS` | No | Maximum generated tokens; default 600. |
+| `REDIS_URL` | No | Optional Redis URL. Blank disables summary caching. |
+| `REDIS_SUMMARY_CACHE_TTL` | No | Successful-summary cache lifetime in seconds; default 86400. |
+| `REDIS_SOCKET_TIMEOUT` | No | Redis operation timeout in seconds; default 0.25. |
+| `REDIS_CONNECT_TIMEOUT` | No | Redis connection timeout in seconds; default 0.25. |
 
 Gmail is considered configured only when all four Gmail/session values are
 present. The application does not accept access tokens from the browser.
+
+### Optional Redis summary cache
+
+Set `REDIS_URL` to enable best-effort caching, for example:
+
+```dotenv
+REDIS_URL=redis://127.0.0.1:6379/0
+REDIS_SUMMARY_CACHE_TTL=86400
+REDIS_SOCKET_TIMEOUT=0.25
+REDIS_CONNECT_TIMEOUT=0.25
+```
+
+The backend always retrieves the message from Gmail and validates its Inbox
+label before looking in Redis. Cache keys include a versioned summary/prompt
+fingerprint, the relevant message content, the model settings that affect
+generation, the Gmail message identifier, and a one-way hash of the current
+server-side session scope. This current architecture therefore provides
+session-scoped cache reuse only; Redis does not make the in-memory OAuth store
+persistent or make the application multi-user safe.
+
+Only successful summaries that pass the existing `gist`, `key_points`, and
+`action_items` validation are written. Cached values are validated again before
+being returned. Failed model responses and invalid cache values are not
+served. Redis connection, read, delete, and write failures are logged only by
+exception type and operation, then fall back to the normal local llama.cpp
+summarisation flow without exposing Redis details to the browser. Redis is
+optional and no live Redis service is required by the test suite.
 
 ## Testing and troubleshooting
 

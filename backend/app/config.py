@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     llama_cpp_timeout: float = 60.0
     llama_cpp_context_size: int = 2048
     llama_cpp_max_tokens: int = 600
+    redis_url: str | None = None
+    redis_summary_cache_ttl: int = 86400
+    redis_socket_timeout: float = 0.25
+    redis_connect_timeout: float = 0.25
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -45,6 +49,10 @@ class Settings(BaseSettings):
             raise ValueError("LLAMA_CPP_CONTEXT_SIZE and LLAMA_CPP_MAX_TOKENS must be positive.")
         if self.llama_cpp_max_tokens >= self.llama_cpp_context_size:
             raise ValueError("LLAMA_CPP_MAX_TOKENS must be smaller than LLAMA_CPP_CONTEXT_SIZE.")
+        if self.redis_summary_cache_ttl <= 0:
+            raise ValueError("REDIS_SUMMARY_CACHE_TTL must be positive.")
+        if self.redis_socket_timeout <= 0 or self.redis_connect_timeout <= 0:
+            raise ValueError("Redis operation timeouts must be positive.")
         return self
 
     @property

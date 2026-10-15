@@ -19,6 +19,7 @@ from backend.app.summarizer import (
     SummarizationUnavailable,
     summarize_email,
 )
+from backend.app.summary_cache import SummaryCache
 from backend.app.main import app
 from backend.app.oauth import OAuthAttempt, store
 
@@ -727,6 +728,177 @@ def test_gmail_summary_returns_local_model_result_for_selected_message(monkeypat
         "key_points": ["The schedule is available."],
         "action_items": ["Review the schedule."],
     }
+
+
+def test_gmail_summary_cache_hit_preserves_response_and_skips_model(monkeypatch):
+    session_id = store.create_session()
+    store.set_credentials(session_id, object())
+    client.cookies.set("talkie_mail_session", session_id)
+    message = {"id": "message-1", "body": "Synthetic email body."}
+    summary = {
+        "gist": "The email shares a schedule.",
+        "key_points": ["The schedule is available."],
+        "action_items": ["Review the schedule."],
+    }
+    calls = {"model": 0}
+    cache_values = {}
+
+    class FakeCache:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def key(self, session, message_id, body, settings):
+            return f"{session}:{message_id}:{body}"
+
+        def get(self, key):
+            return cache_values.get(key)
+
+        def set(self, key, value):
+            cache_values[key] = value
+
+    def fake_summarize(body, settings):
+        calls["model"] += 1
+        return summary
+
+    monkeypatch.setattr(main_module, "SummaryCache", FakeCache)
+    monkeypatch.setattr(main_module, "retrieve_inbox_message", lambda *args, **kwargs: message)
+    monkeypatch.setattr(main_module, "summarize_email", fake_summarize)
+
+    first = client.post("/api/gmail/messages/message-1/summarize")
+    second = client.post("/api/gmail/messages/message-1/summarize")
+
+    assert first.status_code == second.status_code == 200
+    assert first.json() == second.json() == {"message_id": "message-1", **summary}
+    assert calls["model"] == 1
+
+
+def test_summary_cache_key_invalidates_content_and_isolates_sessions():
+    settings = Settings(app_env="test")
+    cache = SummaryCache(settings)
+
+    first = cache.key("session-one", "message-1", "Body one.", settings)
+    changed = cache.key("session-one", "message-1", "Body two.", settings)
+    other_session = cache.key("session-two", "message-1", "Body one.", settings)
+
+    assert first != changed
+    assert first != other_session
+    assert "Body one" not in first
+    assert "session-one" not in first
+
+
+def test_summary_cache_rejects_invalid_cached_values(monkeypatch):
+    class FakeRedis:
+        def __init__(self):
+            self.deleted = []
+
+        def get(self, key):
+            return '{"gist": "", "key_points": [], "action_items": []}'
+
+        def delete(self, key):
+            self.deleted.append(key)
+
+    cache = SummaryCache(Settings(app_env="test"))
+    fake_redis = FakeRedis()
+    cache._client = fake_redis
+
+    assert cache.get("summary-key") is None
+    assert fake_redis.deleted == ["summary-key"]
+
+
+def test_summary_cache_redis_errors_fall_back_without_exposing_details():
+    class BrokenRedis:
+        def get(self, key):
+            raise RuntimeError("private redis connection details")
+
+        def setex(self, *args):
+            raise RuntimeError("private redis write details")
+
+    cache = SummaryCache(Settings(app_env="test"))
+    cache._client = BrokenRedis()
+    summary = {
+        "gist": "A valid result.",
+        "key_points": [],
+        "action_items": [],
+    }
+
+    assert cache.get("summary-key") is None
+    cache.set("summary-key", summary)
+
+
+def test_gmail_summary_redis_failure_falls_back_to_model(monkeypatch):
+    session_id = store.create_session()
+    store.set_credentials(session_id, object())
+    client.cookies.set("talkie_mail_session", session_id)
+    summary = {"gist": "A valid result.", "key_points": [], "action_items": []}
+    calls = {"model": 0}
+
+    class BrokenRedis:
+        def get(self, key):
+            raise RuntimeError("private redis connection details")
+
+        def setex(self, key, ttl, value):
+            raise RuntimeError("private redis write details")
+
+    cache = SummaryCache(Settings(app_env="test"))
+    cache._client = BrokenRedis()
+
+    def fake_summarize(*args, **kwargs):
+        calls["model"] += 1
+        return summary
+
+    monkeypatch.setattr(main_module, "SummaryCache", lambda settings: cache)
+    monkeypatch.setattr(
+        main_module,
+        "retrieve_inbox_message",
+        lambda *args, **kwargs: {"id": "message-1", "body": "Synthetic body."},
+    )
+    monkeypatch.setattr(main_module, "summarize_email", fake_summarize)
+
+    response = client.post("/api/gmail/messages/message-1/summarize")
+
+    assert response.status_code == 200
+    assert response.json() == {"message_id": "message-1", **summary}
+    assert calls["model"] == 1
+    assert "redis connection details" not in response.text
+
+
+def test_gmail_summary_model_failure_does_not_write_cache(monkeypatch):
+    session_id = store.create_session()
+    store.set_credentials(session_id, object())
+    client.cookies.set("talkie_mail_session", session_id)
+    writes = []
+
+    class FakeCache:
+        def __init__(self, settings):
+            pass
+
+        def key(self, *args):
+            return "summary-key"
+
+        def get(self, key):
+            return None
+
+        def set(self, key, value):
+            writes.append(value)
+
+    monkeypatch.setattr(main_module, "SummaryCache", FakeCache)
+    monkeypatch.setattr(
+        main_module,
+        "retrieve_inbox_message",
+        lambda *args, **kwargs: {"id": "message-1", "body": "Synthetic body."},
+    )
+    monkeypatch.setattr(
+        main_module,
+        "summarize_email",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            SummarizationUnavailable("synthetic model failure")
+        ),
+    )
+
+    response = client.post("/api/gmail/messages/message-1/summarize")
+
+    assert response.status_code == 503
+    assert writes == []
 
 
 def test_gmail_summary_requires_connection_and_inbox_message(monkeypatch):
