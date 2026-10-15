@@ -824,3 +824,21 @@
   }
   refreshConnectionStatus();
 })();
+
+if (summarizeButton) {
+  summarizeButton.addEventListener("click", summarizeSelectedMessage);
+}
+if (messageList) {
+  messageList.addEventListener("click", function (event) {
+    const row = event.target.closest("[data-message-id]");
+    if (row) loadMessageDetail(row.dataset.messageId);
+  });
+  messageList.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const row = event.target.closest("[data-message-id]");
+    if (row) {
+      event.preventDefault();
+      loadMessageDetail(row.dataset.messageId);
+    }
+  });
+}
